@@ -7,12 +7,12 @@ x = "first"
 global askForAce
 global cards_drawn
 global blackJack
-global hasAces
+
 global aceValue
 askForAce = True
 cards_drawn = 0
 blackJack = False
-hasAces = False
+
 
 aceValue = 0
 cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -35,7 +35,6 @@ def dealer_card_draw():
 def hand_value(askForAce):
   global amount
   global blackJack
-  global hasAces
   global aceValue
   #global total
   total = 0
@@ -65,7 +64,7 @@ def hand_value(askForAce):
 
   
   
-  print("your cards add up to " + str(total))
+  #print("your cards add up to " + str(total))
    
   return total
 
@@ -87,7 +86,7 @@ def dealer_hand_value():
   if dealer_total > 21 and aceCounter > 0:
     dealer_total = dealer_total - 10
     aceCounter = 0
-  print(dealer_total)
+  #print(dealer_total)
   return dealer_total
 
   
@@ -101,6 +100,7 @@ while playing and money > 0:
   input("press any key to play")
   print("You have $" + str(money))
   bet_amount = float(input("Bet amount: "))
+  print(" ")
   money = money - float(bet_amount)
   player_hand.clear()
   dealer_hand.clear()
@@ -110,6 +110,7 @@ while playing and money > 0:
     card_draw()
   print("your hand is: " + str(player_hand))
   print("dealer has: " + str(dealer_hand[0]) + ", ?")
+  print(" ")
   #REMOVE
   dealer_hand_value()
   #REMOVE ^^^^
@@ -170,10 +171,6 @@ while playing and money > 0:
     elif dealer_hand_value() == hand_value(False):
       money = money + float(bet_amount)
       print("you and the dealer had the same amount.")
-    
-
-  #
-  
 
   #this will print if player busts
   elif hand_value(False) > 21:
