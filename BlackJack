@@ -1,0 +1,186 @@
+import random as rand
+
+player_hand = []
+dealer_hand = []
+playing = True
+x = "first"
+global askForAce
+global cards_drawn
+global blackJack
+global hasAces
+global aceValue
+askForAce = True
+cards_drawn = 0
+blackJack = False
+hasAces = False
+
+aceValue = 0
+cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+money = 100
+
+#function that will randomly select a card from the list
+def card_draw():
+  global cards_drawn
+  card = rand.choice(cards)
+  player_hand.append(card)
+  cards_drawn += 1
+  return card
+def dealer_card_draw():
+  card = rand.choice(cards)
+  dealer_hand.append(card)
+  
+
+#this function will add up all the cards in player hand to determine if the player has 
+#reached 21 yet
+def hand_value(askForAce):
+  global amount
+  global blackJack
+  global hasAces
+  global aceValue
+  #global total
+  total = 0
+  for card in player_hand:
+
+    #this segment asks what value you want the Ace to be
+    if card == "A":
+      if askForAce:
+        value = input("1 or 11? ")
+        if value == '1':
+          total += 1
+          aceValue = 1
+        else:
+          total += 11
+          aceValue = 11
+      else:
+        total += int(aceValue)
+    #face cards = 10
+    elif card == 'J' or card == 'Q' or card == 'K':
+      total += 10
+    
+    else:
+      total += int(card)
+
+  if total == 21 and cards_drawn == 2:
+    blackJack = True
+
+  
+  
+  print("your cards add up to " + str(total))
+   
+  return total
+
+
+
+def dealer_hand_value():
+  dealer_total = 0
+  aceCounter = 0
+  for card in dealer_hand:
+    if card == 'A':
+      dealer_total += 11
+      aceCounter += 1
+
+    elif card == "J" or card == "Q" or card == "K":
+      dealer_total += 10
+
+    else:
+      dealer_total += int(card)
+  if dealer_total > 21 and aceCounter > 0:
+    dealer_total = dealer_total - 10
+    aceCounter = 0
+  print(dealer_total)
+  return dealer_total
+
+  
+
+
+
+#game loop
+while playing and money > 0:
+  
+  print(" ")
+  input("press any key to play")
+  print("You have $" + str(money))
+  bet_amount = float(input("Bet amount: "))
+  money = money - float(bet_amount)
+  player_hand.clear()
+  dealer_hand.clear()
+  #starts the player off drawing 2 cards
+  for i in range(2):
+    dealer_card_draw()
+    card_draw()
+  print("your hand is: " + str(player_hand))
+  print("dealer has: " + str(dealer_hand[0]) + ", ?")
+  #REMOVE
+  dealer_hand_value()
+  #REMOVE ^^^^
+
+  #temp_hand_value = hand_value()
+  #print(temp_hand_value)
+  
+
+  
+  while int(hand_value(True)) <= 21:
+
+    if dealer_hand_value() == 21 and player_hand != 21:
+      print("dealer Blackjack! you lose :(")
+      break
+    elif hand_value(False) == 21 and dealer_hand_value() == 21:
+      money = money + float(bet_amount)
+      print("push, you and the dealer got a Blackjack!")
+      break
+    elif player_hand == 21 and cards_drawn == 2:
+      money = money + float(bet_amount) * 1.5
+      print("Blackjack! you win!")
+      break
+    elif hand_value(False) == 21:
+      print("Blackjack! you win!")
+      money = money + float(bet_amount) * 2
+    #player determines if they want another card or not
+    player_hit = input("do you want another card?")
+    
+    if player_hit == 'yes':
+     card_draw()
+     print("new hand: " + str(player_hand))
+    elif player_hit == 'no':
+     break
+      
+    else:
+     print("please enter yes or no")
+
+  
+    
+  while dealer_hand_value() <= 16:
+    dealer_card_draw()
+    
+    if dealer_hand_value() > 16 and dealer_hand_value() < 21:
+      break
+  print("dealer hand is " + str(dealer_hand))
+
+  if dealer_hand_value() > 21 and hand_value(False) <= 21:
+    print("dealer bust, you win!")
+    money = money + float(bet_amount) * 2
+    
+  
+  elif hand_value(False) <= 21:
+    if dealer_hand_value() < hand_value(False):
+      money = money + float(bet_amount) * 2
+      print("You had a higer amount than the dealer. You win!!")
+    elif dealer_hand_value() > hand_value(False):
+      print("You had a less amount than the dealer. you lose :(")
+    elif dealer_hand_value() == hand_value(False):
+      money = money + float(bet_amount)
+      print("you and the dealer had the same amount.")
+    
+
+  #
+  
+
+  #this will print if player busts
+  elif hand_value(False) > 21:
+    print('you lose!')
+
+  
+  
+    
+  
+  
