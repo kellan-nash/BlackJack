@@ -1,19 +1,21 @@
 import random as rand
 
 player_hand = []
+splitPlayer_hand = []
 dealer_hand = []
 playing = True
 x = "first"
 global askForAce
 global cards_drawn
 global blackJack
-
+global aceValue2
 global aceValue
+
 askForAce = True
 cards_drawn = 0
 blackJack = False
 
-
+aceValue2 = 0
 aceValue = 0
 cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 money = 100
@@ -36,22 +38,37 @@ def hand_value(askForAce):
   global amount
   global blackJack
   global aceValue
+  global aceValue2
   #global total
   total = 0
+  aceCount = 0
   for card in player_hand:
 
     #this segment asks what value you want the Ace to be
     if card == "A":
       if askForAce:
+        
         value = input("1 or 11? ")
-        if value == '1':
+
+        if value == '1' and aceCount > 0:
+          total += 1
+          aceValue2 = 1
+          aceCount += 1
+        elif value == '1':
           total += 1
           aceValue = 1
+          aceCount += 1
+        elif value == '11' and aceCount > 0:
+          total += 11
+          aceValue2 = 11
+          aceCount += 1
         else:
           total += 11
           aceValue = 11
+          aceCount += 1
       else:
         total += int(aceValue)
+        total += int(aceValue2)
     #face cards = 10
     elif card == 'J' or card == 'Q' or card == 'K':
       total += 10
@@ -75,7 +92,7 @@ def dealer_hand_value():
   aceCounter = 0
   for card in dealer_hand:
     if card == 'A':
-      dealer_total += 11
+      dealer_total += 1
       aceCounter += 1
 
     elif card == "J" or card == "Q" or card == "K":
@@ -83,9 +100,10 @@ def dealer_hand_value():
 
     else:
       dealer_total += int(card)
-  if dealer_total > 21 and aceCounter > 0:
-    dealer_total = dealer_total - 10
-    aceCounter = 0
+  if dealer_total == 11 and len(dealer_hand) == 2 and aceCounter > 0:
+    dealer_total = 21
+    
+    
   #print(dealer_total)
   return dealer_total
 
@@ -95,7 +113,7 @@ def dealer_hand_value():
 
 #game loop
 while playing and money > 0:
-  
+  cards_drawn = 0
   print(" ")
   input("press any key to play")
   print("You have $" + str(money))
@@ -121,32 +139,50 @@ while playing and money > 0:
 
   
   while int(hand_value(True)) <= 21:
-
-    if dealer_hand_value() == 21 and player_hand != 21:
+    
+    if dealer_hand_value() == 21 and hand_value(False) != 21:
       print("dealer Blackjack! you lose :(")
       break
     elif hand_value(False) == 21 and dealer_hand_value() == 21:
       money = money + float(bet_amount)
       print("push, you and the dealer got a Blackjack!")
       break
-    elif player_hand == 21 and cards_drawn == 2:
+    elif hand_value(False) == 21 and cards_drawn == 2:
       money = money + float(bet_amount) * 1.5
       print("Blackjack! you win!")
       break
     elif hand_value(False) == 21:
-      print("Blackjack! you win!")
-      money = money + float(bet_amount) * 2
-    #player determines if they want another card or not
-    player_hit = input("do you want another card?")
+      
+      break
+
     
-    if player_hit == 'yes':
+    #player determines if they want another card or not
+    print(" ")
+    double_down = False
+    if cards_drawn == 2 and not double_down:
+      player_hit = input("hit, stay, or double down: ")
+    else:
+      player_hit = input("hit or stay: ")
+    
+    if player_hit == 'hit':
      card_draw()
      print("new hand: " + str(player_hand))
-    elif player_hit == 'no':
+    elif player_hit == 'stay':
      break
       
+    elif player_hit == "double down" and cards_drawn == 2 and money >= bet_amount:
+      card_draw()
+      double_down = True
+      money = money - bet_amount
+      bet_amount = bet_amount * 2
+      print("you are now betting: $" + str(bet_amount))
+      print(" ")
+      print("new hand: " + str(player_hand))
+      hand_value(True)
+      break
+      
     else:
-     print("please enter yes or no")
+     print("please try again")
 
   
     
@@ -174,10 +210,10 @@ while playing and money > 0:
 
   #this will print if player busts
   elif hand_value(False) > 21:
-    print('you lose!')
+    print('you busted, you lose!')
 
   
   
     
   
-  
+print("You ran out of money :(")
